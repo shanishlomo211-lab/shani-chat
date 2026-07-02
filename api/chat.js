@@ -216,31 +216,30 @@ export default async function handler(req, res) {
 
     const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 
+    const requestBody = {
+      systemInstruction: {
+        parts: [{ text: SYSTEM_PROMPT }]
+      },
+      contents,
+      generationConfig: {
+        temperature: 0.7,
+        topP: 0.95,
+        maxOutputTokens: 800
+      }
+    };
+
+    console.log('Sending to Gemini:', JSON.stringify({ contentsCount: contents.length, firstRole: contents[0]?.role }));
+
     const geminiRes = await fetch(geminiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: SYSTEM_PROMPT }]
-        },
-        contents,
-        generationConfig: {
-          temperature: 0.7,
-          topP: 0.95,
-          maxOutputTokens: 800
-        },
-        safetySettings: [
-          { category: 'HARM_CATEGORY_HARASSMENT', threshold: 'BLOCK_ONLY_HIGH' },
-          { category: 'HARM_CATEGORY_HATE_SPEECH', threshold: 'BLOCK_ONLY_HIGH' },
-          { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT', threshold: 'BLOCK_ONLY_HIGH' },
-          { category: 'HARM_CATEGORY_DANGEROUS_CONTENT', threshold: 'BLOCK_ONLY_HIGH' }
-        ]
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!geminiRes.ok) {
       const errText = await geminiRes.text();
-      console.error('Gemini error:', geminiRes.status, errText);
+      console.error('Gemini error status:', geminiRes.status);
+      console.error('Gemini error body:', errText);
 
       if (geminiRes.status === 429) {
         return res.status(200).json({
@@ -248,7 +247,8 @@ export default async function handler(req, res) {
         });
       }
       // Return the actual error text so we can debug
-      return res.status(500).json({ error: `שגיאה. נסי שוב עוד רגע. (${geminiRes.status})` });
+      const shortErr = errText.substring(0, 200);
+      return res.status(500).json({ error: `שגיאה (${geminiRes.status}): ${shortErr}` });
     }
 
     const data = await geminiRes.json();
