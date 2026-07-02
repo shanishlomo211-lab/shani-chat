@@ -23,7 +23,7 @@ ${conversationText}
 סיכום מדויק (בלי הקדמות, ישר לעניין):`;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiKey}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`;
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

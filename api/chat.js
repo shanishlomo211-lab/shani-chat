@@ -204,7 +204,7 @@ export default async function handler(req, res) {
       parts: [{ text: m.content }]
     }));
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
 
     const geminiRes = await fetch(geminiUrl, {
       method: 'POST',
@@ -237,7 +237,8 @@ export default async function handler(req, res) {
           reply: 'השירות עמוס כרגע. נסי שוב בעוד רגע, או פני אליי ישירות בוואטסאפ: [לחצי כאן](https://wa.me/972526917789)'
         });
       }
-      return res.status(500).json({ error: 'שגיאה. נסי שוב עוד רגע.' });
+      // Return the actual error text so we can debug
+      return res.status(500).json({ error: `שגיאה. נסי שוב עוד רגע. (${geminiRes.status})` });
     }
 
     const data = await geminiRes.json();
