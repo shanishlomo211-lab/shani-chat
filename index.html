@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>שני שלמה | רפואה אינטגרטיבית מאחדת</title>
+  <meta name="description" content="גלי איזה משבר רגשי עומד מאחורי הכאב שלך. שיחה קצרה עם שני שלמה, על פי השיטה של ד״ר נאדר בוטו.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Suez+One&family=Assistant:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --warm-cream: #FAF7F2;
+      --sand: #EFE7DA;
+      --deep-earth: #5C4033;
+      --terracotta: #C67D5B;
+      --muted-purple: #8B7B8B;
+      --charcoal: #2D2A26;
+      --dusty-rose: #C9A8A0;
+      --gold: #C9A961;
+
+      --bg: var(--sand);
+      --surface: var(--warm-cream);
+      --text: var(--charcoal);
+      --text-soft: var(--muted-purple);
+      --border: #E0D6C4;
+
+      --user-bubble: var(--sand);
+      --bot-bubble: #FFFFFF;
+
+      --whatsapp: #25D366;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body { height: 100%; overflow: hidden; }
+
+    body {
+      font-family: 'Assistant', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+    }
+
+    /* Header */
+    .header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+      box-shadow: 0 1px 4px rgba(92, 64, 51, 0.06);
+    }
+
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--sand);
+      overflow: hidden;
+      flex-shrink: 0;
+      border: 2px solid var(--warm-cream);
+      box-shadow: 0 2px 6px rgba(92, 64, 51, 0.15);
+      position: relative;
+    }
+
+    .avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .avatar-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Suez One', serif;
+      font-size: 20px;
+      color: var(--deep-earth);
+      background: var(--sand);
+    }
+
+    .header-text h1 {
+      font-family: 'Suez One', serif;
+      font-size: 19px;
+      font-weight: 400;
+      color: var(--deep-earth);
+      line-height: 1.15;
+    }
+
+    .header-text p {
+      font-size: 12px;
+      color: var(--text-soft);
+      margin-top: 3px;
+      letter-spacing: 0.2px;
+    }
+
+    .header-links { display: flex; gap: 8px; }
+
+    .header-link {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--warm-cream);
+      color: var(--deep-earth);
+      text-decoration: none;
+      transition: transform 0.2s, background 0.2s;
+      border: 1px solid var(--border);
+    }
+
+    .header-link:hover {
+      transform: scale(1.06);
+      background: var(--sand);
+    }
+
+    .header-link svg { width: 18px; height: 18px; }
+    .header-link.instagram { color: #C67D5B; }
+    .header-link.whatsapp { color: #7A8450; }
+
+    /* Chat area */
+    .chat {
+      flex: 1;
+      overflow-y: auto;
+      padding: 22px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+      background: var(--bg);
+    }
+
+    .message {
+      max-width: 86%;
+      padding: 13px 18px;
+      border-radius: 18px;
+      line-height: 1.65;
+      font-size: 16px;
+      word-wrap: break-word;
+      animation: fadeIn 0.35s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .message.bot {
+      background: var(--bot-bubble);
+      color: var(--deep-earth);
+      align-self: flex-start;
+      border-bottom-right-radius: 5px;
+      box-shadow: 0 2px 8px rgba(92, 64, 51, 0.06);
+      border-right: 3px solid var(--terracotta);
+    }
+
+    .message.user {
+      background: var(--user-bubble);
+      color: var(--deep-earth);
+      align-self: flex-end;
+      border-bottom-left-radius: 5px;
+    }
+
+    .message a {
+      color: var(--terracotta);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      font-weight: 500;
+    }
+
+    .message ul {
+      margin: 10px 12px 0 0;
+      padding-right: 8px;
+    }
+
+    .message li {
+      margin-bottom: 5px;
+    }
+
+    .message p + p {
+      margin-top: 10px;
+    }
+
+    .message strong {
+      font-family: 'Suez One', serif;
+      font-weight: 400;
+      color: var(--deep-earth);
+    }
+
+    .message.bot strong {
+      color: var(--terracotta);
+    }
+
+    /* Typing indicator */
+    .typing {
+      display: flex;
+      gap: 5px;
+      padding: 16px 20px;
+      background: var(--bot-bubble);
+      border-radius: 18px;
+      border-bottom-right-radius: 5px;
+      align-self: flex-start;
+      box-shadow: 0 2px 8px rgba(92, 64, 51, 0.06);
+      border-right: 3px solid var(--terracotta);
+    }
+
+    .typing span {
+      width: 7px;
+      height: 7px;
+      background: var(--terracotta);
+      border-radius: 50%;
+      animation: bounce 1.2s infinite;
+      opacity: 0.5;
+    }
+
+    .typing span:nth-child(2) { animation-delay: 0.15s; }
+    .typing span:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes bounce {
+      0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+      30% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    /* CTA buttons */
+    .cta-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-self: flex-start;
+      max-width: 86%;
+      margin-top: 6px;
+    }
+
+    .cta-btn {
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-family: 'Assistant', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none;
+      cursor: pointer;
+      color: white;
+    }
+
+    .cta-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(92, 64, 51, 0.15);
+    }
+
+    .cta-whatsapp {
+      background: #7A8450;
+    }
+
+    .cta-instagram {
+      background: var(--terracotta);
+    }
+
+    .cta-btn svg { width: 18px; height: 18px; }
+
+    /* Lead form */
+    .lead-form {
+      background: var(--bot-bubble);
+      border-radius: 18px;
+      border-bottom-right-radius: 5px;
+      border-right: 3px solid var(--gold);
+      padding: 18px 20px;
+      align-self: flex-start;
+      max-width: 86%;
+      box-shadow: 0 2px 8px rgba(92, 64, 51, 0.06);
+    }
+
+    .lead-form h3 {
+      font-family: 'Suez One', serif;
+      font-weight: 400;
+      font-size: 17px;
+      color: var(--deep-earth);
+      margin-bottom: 6px;
+    }
+
+    .lead-form p {
+      font-size: 14px;
+      color: var(--text-soft);
+      margin-bottom: 14px;
+    }
+
+    .lead-form input {
+      width: 100%;
+      padding: 11px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 15px;
+      color: var(--deep-earth);
+      background: var(--warm-cream);
+      margin-bottom: 8px;
+      transition: border 0.2s;
+    }
+
+    .lead-form input:focus {
+      outline: none;
+      border-color: var(--terracotta);
+    }
+
+    .lead-form button {
+      width: 100%;
+      padding: 12px;
+      border: none;
+      border-radius: 10px;
+      background: var(--terracotta);
+      color: white;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 6px;
+      transition: background 0.2s;
+    }
+
+    .lead-form button:hover:not(:disabled) { background: #b06c4a; }
+    .lead-form button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .lead-form .success {
+      color: #7A8450;
+      font-size: 14px;
+      text-align: center;
+      padding: 10px 0;
+      font-weight: 600;
+    }
+
+    /* Input area */
+    .input-area {
+      padding: 12px 16px 14px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .input-wrap {
+      display: flex;
+      gap: 8px;
+      background: var(--warm-cream);
+      border-radius: 24px;
+      padding: 5px 5px 5px 18px;
+      border: 1px solid var(--border);
+      align-items: flex-end;
+      transition: border 0.2s;
+    }
+
+    .input-wrap:focus-within { border-color: var(--terracotta); }
+
+    #input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 16px;
+      background: transparent;
+      color: var(--deep-earth);
+      resize: none;
+      max-height: 120px;
+      padding: 9px 0;
+      line-height: 1.5;
+    }
+
+    #input::placeholder { color: var(--text-soft); opacity: 0.7; }
+
+    #send {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--terracotta);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    #send:hover:not(:disabled) {
+      background: #b06c4a;
+      transform: scale(1.05);
+    }
+
+    #send:disabled { background: var(--dusty-rose); cursor: not-allowed; }
+
+    #send svg { width: 18px; height: 18px; transform: rotate(180deg); }
+
+    .footer-note {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-soft);
+      margin-top: 8px;
+      letter-spacing: 0.2px;
+    }
+
+    /* Scrollbar */
+    .chat::-webkit-scrollbar { width: 6px; }
+    .chat::-webkit-scrollbar-thumb {
+      background: var(--dusty-rose);
+      border-radius: 3px;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 480px) {
+      .header-text h1 { font-size: 17px; }
+      .header-text p { font-size: 11px; }
+      .message { font-size: 15px; }
+      .avatar { width: 40px; height: 40px; }
+    }
+
+    /* Intro / splash screen */
+    .intro {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 24px 40px;
+      text-align: center;
+      overflow-y: auto;
+      background: var(--bg);
+    }
+
+    .intro-avatar {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      overflow: hidden;
+      background: var(--sand);
+      border: 3px solid var(--warm-cream);
+      box-shadow: 0 8px 24px rgba(92, 64, 51, 0.18);
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .intro-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .intro-avatar .avatar-fallback {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Suez One', serif;
+      font-size: 56px;
+      color: var(--deep-earth);
+    }
+
+    .intro h1 {
+      font-family: 'Suez One', serif;
+      font-size: 28px;
+      font-weight: 400;
+      color: var(--deep-earth);
+      margin-bottom: 4px;
+    }
+
+    .intro .subtitle {
+      font-size: 14px;
+      color: var(--muted-purple);
+      margin-bottom: 22px;
+      letter-spacing: 0.3px;
+    }
+
+    .intro-body {
+      background: var(--bot-bubble);
+      border-radius: 16px;
+      border-right: 3px solid var(--terracotta);
+      padding: 20px 22px;
+      max-width: 380px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 12px rgba(92, 64, 51, 0.06);
+      text-align: right;
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--deep-earth);
+    }
+
+    .intro-body p + p { margin-top: 10px; }
+
+    .intro-body strong {
+      font-family: 'Suez One', serif;
+      font-weight: 400;
+      color: var(--terracotta);
+    }
+
+    .intro-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .intro-btn {
+      padding: 14px 20px;
+      border-radius: 14px;
+      font-family: 'Assistant', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+
+    .intro-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(92, 64, 51, 0.18);
+    }
+
+    .intro-btn.primary {
+      background: linear-gradient(135deg, #F58529, #DD2A7B, #8134AF);
+      color: white;
+    }
+
+    .intro-btn.secondary {
+      background: var(--warm-cream);
+      color: var(--deep-earth);
+      border: 1.5px solid var(--terracotta);
+    }
+
+    .intro-btn.secondary:hover {
+      background: var(--terracotta);
+      color: white;
+    }
+
+    .intro-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    /* Container that will hold intro or chat */
+    .stage {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-brand">
+      <div class="avatar">
+        <img src="./avatar.jpg" alt="שני שלמה" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span class="avatar-fallback" style="display:none;">ש</span>
+      </div>
+      <div class="header-text">
+        <h1>שני שלמה</h1>
+        <p>רפואה אינטגרטיבית מאחדת</p>
+      </div>
+    </div>
+    <div class="header-links">
+      <a href="https://www.instagram.com/shani_integrativemed" target="_blank" class="header-link instagram" aria-label="אינסטגרם" title="אינסטגרם">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+      </a>
+      <a href="https://wa.me/972526917789" target="_blank" class="header-link whatsapp" aria-label="וואטסאפ" title="וואטסאפ">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="stage">
+    <div class="intro" id="intro">
+      <div class="intro-avatar">
+        <img src="./avatar.jpg" alt="שני שלמה" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span class="avatar-fallback" style="display:none;">ש</span>
+      </div>
+      <h1>שני שלמה</h1>
+      <p class="subtitle">רפואה אינטגרטיבית מאחדת</p>
+
+      <div class="intro-body">
+        <p>היי, אני שני. מטפלת ברפואה אינטגרטיבית מאחדת ושטיפות אנרגטיות על פי השיטה של ד"ר נאדר בוטו.</p>
+        <p>השיחה הזאת היא <strong>טעימה בלבד</strong>. אני שואלת אותך 3-5 שאלות קצרות כדי לעזור לך לגלות איזה משבר רגשי עומד מאחורי מה שהגוף שלך מספר לך.</p>
+        <p>לפני שנתחיל, מוזמנת לעקוב אחריי באינסטגרם, שם אני משתפת את השיטה לעומק.</p>
+      </div>
+
+      <div class="intro-buttons">
+        <a href="https://www.instagram.com/shani_integrativemed" target="_blank" class="intro-btn primary" id="follow-btn">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+          לעקוב אחריי באינסטגרם
+        </a>
+        <button class="intro-btn secondary" id="start-btn">
+          אני מוכנה, בואי נתחיל
+        </button>
+      </div>
+    </div>
+
+    <div class="chat-container hidden" id="chat-container" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+      <div class="chat" id="chat"></div>
+
+      <div class="input-area">
+        <div class="input-wrap">
+          <textarea id="input" rows="1" placeholder="ספרי לי מה מלווה אותך..." autocomplete="off"></textarea>
+          <button id="send" aria-label="שלח" disabled>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
+        </div>
+        <p class="footer-note">השיחה טעימה בלבד ולא מחליפה ייעוץ רפואי</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chat = document.getElementById('chat');
+    const input = document.getElementById('input');
+    const sendBtn = document.getElementById('send');
+
+    let history = [];
+    let isThinking = false;
+    let leadShown = false;
+
+    const OPENING = `יופי, את כאן.
+
+עכשיו ספרי לי - איזה כאב, מחלה או תסמין גופני מלווה אותך? נסי לכלול:
+• איפה בגוף (ובאיזה צד)
+• כמה זמן זה נמשך
+• מה הרופאים אמרו, אם ראית מישהו`;
+
+    function md(text) {
+      let html = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+      const lines = html.split('\n');
+      let inList = false;
+      const out = [];
+      for (const line of lines) {
+        if (/^\s*[•\-]\s+/.test(line)) {
+          if (!inList) { out.push('<ul>'); inList = true; }
+          out.push('<li>' + line.replace(/^\s*[•\-]\s+/, '') + '</li>');
+        } else {
+          if (inList) { out.push('</ul>'); inList = false; }
+          if (line.trim() === '') out.push('');
+          else out.push('<p>' + line + '</p>');
+        }
+      }
+      if (inList) out.push('</ul>');
+      return out.join('');
+    }
+
+    function addMessage(role, text) {
+      const div = document.createElement('div');
+      div.className = 'message ' + role;
+      div.innerHTML = md(text);
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+      return div;
+    }
+
+    function addTyping() {
+      const div = document.createElement('div');
+      div.className = 'typing';
+      div.id = 'typing';
+      div.innerHTML = '<span></span><span></span><span></span>';
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function removeTyping() {
+      const t = document.getElementById('typing');
+      if (t) t.remove();
+    }
+
+    function addLeadForm() {
+      if (leadShown) return;
+      leadShown = true;
+
+      const form = document.createElement('div');
+      form.className = 'lead-form';
+      form.innerHTML = `
+        <h3>שלחי לי סיכום לוואטסאפ</h3>
+        <p>אכתוב לי שם וטלפון ואצור איתך קשר עם הסיכום המלא של השיחה ותובנות נוספות.</p>
+        <input type="text" id="lead-name" placeholder="שם מלא" />
+        <input type="tel" id="lead-phone" placeholder="טלפון (05...)" />
+        <button id="lead-submit">שלחי לי סיכום</button>
+      `;
+      chat.appendChild(form);
+      chat.scrollTop = chat.scrollHeight;
+
+      document.getElementById('lead-submit').addEventListener('click', async () => {
+        const name = document.getElementById('lead-name').value.trim();
+        const phone = document.getElementById('lead-phone').value.trim();
+        const btn = document.getElementById('lead-submit');
+
+        if (!name || !phone) {
+          btn.style.background = '#a94438';
+          btn.textContent = 'חסר שם או טלפון';
+          setTimeout(() => {
+            btn.style.background = '';
+            btn.textContent = 'שלחי לי סיכום';
+          }, 1800);
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = 'שולחת...';
+
+        try {
+          const res = await fetch('/api/lead', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, phone, history })
+          });
+
+          if (res.ok) {
+            form.innerHTML = `
+              <h3>קיבלתי, ${name.split(' ')[0]} 🤍</h3>
+              <p class="success">שני תיצור איתך קשר בוואטסאפ עם הסיכום המלא בקרוב.</p>
+              <a href="https://wa.me/972526917789?text=${encodeURIComponent('היי שני, סיימתי שיחה עם הצ׳אט (' + name + '). אני מחכה לסיכום')}" target="_blank" class="cta-btn cta-whatsapp" style="text-decoration: none; justify-content: center; margin-top: 10px;">
+                פתחי וואטסאפ עם שני
+              </a>
+            `;
+          } else {
+            btn.disabled = false;
+            btn.textContent = 'נסי שוב';
+          }
+        } catch (e) {
+          btn.disabled = false;
+          btn.textContent = 'נסי שוב';
+        }
+      });
+    }
+
+    async function sendMessage() {
+      const text = input.value.trim();
+      if (!text || isThinking) return;
+
+      input.value = '';
+      input.style.height = 'auto';
+      updateSendBtn();
+
+      addMessage('user', text);
+      history.push({ role: 'user', content: text });
+
+      isThinking = true;
+      addTyping();
+
+      try {
+        const res = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ history })
+        });
+
+        removeTyping();
+
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'שגיאה' }));
+          addMessage('bot', err.error || 'משהו השתבש. נסי שוב עוד רגע, או פני אליי ישירות בוואטסאפ.');
+          isThinking = false;
+          return;
+        }
+
+        const data = await res.json();
+        const reply = data.reply || 'משהו השתבש. נסי שוב.';
+        addMessage('bot', reply);
+        history.push({ role: 'assistant', content: reply });
+
+        // Show lead form after bot suggests summary
+        if (/וואטסאפ|סיכום|האמיתית|רוצה שאשלח/i.test(reply)) {
+          setTimeout(addLeadForm, 400);
+        }
+      } catch (e) {
+        removeTyping();
+        addMessage('bot', 'משהו השתבש. נסי שוב עוד רגע, או פני אליי ישירות בוואטסאפ.');
+      }
+
+      isThinking = false;
+    }
+
+    function updateSendBtn() {
+      sendBtn.disabled = input.value.trim().length === 0 || isThinking;
+    }
+
+    input.addEventListener('input', () => {
+      input.style.height = 'auto';
+      input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+      updateSendBtn();
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    });
+
+    sendBtn.addEventListener('click', sendMessage);
+
+    // Splash → chat transition
+    const introEl = document.getElementById('intro');
+    const chatContainer = document.getElementById('chat-container');
+    const startBtn = document.getElementById('start-btn');
+    const followBtn = document.getElementById('follow-btn');
+    let followClicked = false;
+
+    followBtn.addEventListener('click', () => {
+      followClicked = true;
+      startBtn.textContent = 'תודה! בואי נתחיל ←';
+      startBtn.style.background = 'var(--terracotta)';
+      startBtn.style.color = 'white';
+    });
+
+    function startChat() {
+      introEl.classList.add('hidden');
+      chatContainer.classList.remove('hidden');
+      addMessage('bot', OPENING);
+      history.push({ role: 'assistant', content: OPENING });
+      setTimeout(() => input.focus(), 100);
+    }
+
+    startBtn.addEventListener('click', startChat);
+  </script>
+</body>
+</html>

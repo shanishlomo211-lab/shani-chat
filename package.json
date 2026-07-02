@@ -1,0 +1,9 @@
+{
+  "name": "shani-chat",
+  "version": "1.0.0",
+  "description": "Chatbot for Shani Shlomo - Integrative Medicine",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
+}
