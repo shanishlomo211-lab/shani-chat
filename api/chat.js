@@ -199,12 +199,22 @@ export default async function handler(req, res) {
 
     // Convert our simple history format to Gemini's format
     // Gemini uses "user" and "model" roles
-    const contents = history.map(m => ({
+    let contents = history.map(m => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }]
     }));
 
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`;
+    // Gemini requires conversation to start with a 'user' message.
+    // Strip any leading assistant/model messages (like the client-side OPENING).
+    while (contents.length > 0 && contents[0].role !== 'user') {
+      contents.shift();
+    }
+
+    if (contents.length === 0) {
+      return res.status(400).json({ error: 'לא התקבלה הודעה' });
+    }
+
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
 
     const geminiRes = await fetch(geminiUrl, {
       method: 'POST',
