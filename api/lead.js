@@ -140,7 +140,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { name, phone, history } = req.body || {};
+    const { name, phone, email, history, gender, sessionId } = req.body || {};
 
     if (!name || !phone || !Array.isArray(history)) {
       return res.status(400).json({ error: 'חסרים פרטים' });
@@ -152,14 +152,44 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'טלפון לא תקין' });
     }
 
+    // Validate optional email
+    const cleanEmail = email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? email.trim() : null;
+
     // Generate summary using Gemini (if key available)
     const summary = geminiKey ? await summarize(history, geminiKey) : null;
 
-    // Build email HTML
-    const html = buildEmailHtml({ name, phone: cleanPhone, summary, history });
+    // Update Google Sheets with completion status + summary + email
+    const sheetsUrl = process.env.SHEETS_WEBHOOK_URL;
+    if (sheetsUrl) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 4000);
+        await fetch(sheetsUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'complete',
+            sessionId: sessionId || '',
+            name,
+            phone: cleanPhone,
+            email: cleanEmail || '',
+            gender: gender || '',
+            summary: summary || '',
+            timestamp: new Date().toISOString()
+          }),
+          signal: controller.signal
+        }).catch(err => console.warn('Sheets webhook (complete) failed:', err.message));
+        clearTimeout(timeoutId);
+      } catch (e) {
+        console.warn('Sheets call (complete) failed:', e.message);
+      }
+    }
 
-    // Send email via Resend
-    const emailRes = await fetch('https://api.resend.com/emails', {
+    // Build email HTML for Shani (internal, full lead)
+    const htmlForShani = buildEmailHtml({ name, phone: cleanPhone, summary, history });
+
+    // Send email to Shani
+    const shaniEmailRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${resendKey}`,
@@ -169,15 +199,39 @@ export default async function handler(req, res) {
         from: 'Shani Chat <onboarding@resend.dev>',
         to: [SHANI_EMAIL],
         subject: `ליד חדש מהצ׳אטבוט: ${name}`,
-        html,
+        html: htmlForShani,
         reply_to: SHANI_EMAIL
       })
     });
 
-    if (!emailRes.ok) {
-      const errText = await emailRes.text();
-      console.error('Resend error:', emailRes.status, errText);
+    if (!shaniEmailRes.ok) {
+      const errText = await shaniEmailRes.text();
+      console.error('Resend error (shani):', shaniEmailRes.status, errText);
       return res.status(500).json({ error: 'שגיאה בשליחת המייל' });
+    }
+
+    // If user provided an email - send them their own copy
+    if (cleanEmail) {
+      const userHtml = buildUserEmailHtml({ name, summary, history, gender });
+      // Fire-and-forget; we don't fail the lead if the user email fails
+      try {
+        await fetch('https://api.resend.com/emails', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${resendKey}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            from: 'Shani Shlomo <onboarding@resend.dev>',
+            to: [cleanEmail],
+            subject: 'הסיכום שלך משיחת הצ׳אט עם שני 🤍',
+            html: userHtml,
+            reply_to: SHANI_EMAIL
+          })
+        });
+      } catch (e) {
+        console.error('User email failed (non-fatal):', e);
+      }
     }
 
     return res.status(200).json({ ok: true });
@@ -185,4 +239,57 @@ export default async function handler(req, res) {
     console.error('Lead handler error:', err);
     return res.status(500).json({ error: 'משהו השתבש' });
   }
+}
+
+// Warm email sent to the user with their summary
+function buildUserEmailHtml({ name, summary, history, gender }) {
+  const firstName = String(name).split(' ')[0];
+  const isMale = gender === 'male';
+  const greeting = isMale ? `היי ${firstName},` : `היי ${firstName},`;
+  const intro = isMale
+    ? 'תודה שפתחת שיחה איתי בצ׳אט 🤍 להלן הסיכום שלנו. אני אצור איתך קשר בוואטסאפ בקרוב כדי להעמיק יחד.'
+    : 'תודה שפתחת שיחה איתי בצ׳אט 🤍 להלן הסיכום שלנו. אני אצור איתך קשר בוואטסאפ בקרוב כדי להעמיק יחד.';
+  const inviteInsta = isMale
+    ? 'בינתיים, אתה מוזמן לעקוב אחריי באינסטגרם - שם אני משתפת את השיטה לעומק:'
+    : 'בינתיים, את מוזמנת לעקוב אחריי באינסטגרם - שם אני משתפת את השיטה לעומק:';
+
+  return `<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: 'Assistant', -apple-system, sans-serif; background: #EFE7DA; padding: 20px; color: #2D2A26; direction: rtl; }
+  .wrap { max-width: 620px; margin: 0 auto; background: #FAF7F2; border-radius: 16px; padding: 32px; box-shadow: 0 4px 16px rgba(92, 64, 51, 0.08); }
+  h1 { color: #5C4033; font-size: 22px; margin-bottom: 8px; font-family: serif; font-weight: 400; }
+  .greeting { color: #5C4033; font-size: 16px; margin-bottom: 16px; line-height: 1.6; }
+  .summary-box { background: #FFF8E8; border-right: 4px solid #C9A961; border-radius: 12px; padding: 20px; margin: 20px 0; }
+  .summary-box h2 { color: #C9A961; font-size: 15px; margin-bottom: 10px; letter-spacing: 1px; }
+  .cta { display: inline-block; background: #C67D5B; color: white !important; padding: 12px 24px; border-radius: 12px; text-decoration: none; margin: 12px 8px 0 0; font-weight: 600; }
+  .cta.insta { background: linear-gradient(135deg, #F58529, #DD2A7B, #8134AF); }
+  .footer { text-align: center; color: #8B7B8B; font-size: 12px; margin-top: 24px; padding-top: 16px; border-top: 1px dashed #C9A8A0; }
+  .signature { color: #5C4033; margin-top: 24px; font-style: italic; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>הסיכום שלנו 🤍</h1>
+    <p class="greeting">${greeting}<br>${intro}</p>
+
+    ${summary ? `
+    <div class="summary-box">
+      <h2>מה עלה בשיחה</h2>
+      <div style="color: #5C4033; font-size: 15px; line-height: 1.7; white-space: pre-wrap;">${escapeHtml(summary)}</div>
+    </div>
+    ` : ''}
+
+    <p style="color: #5C4033; line-height: 1.7;">${inviteInsta}</p>
+    <a href="https://www.instagram.com/shani_integrativemed" class="cta insta">לעקוב באינסטגרם</a>
+    <a href="https://wa.me/972526917789" class="cta">וואטסאפ ישיר</a>
+
+    <p class="signature">בהמון אהבה,<br>שני 🤍</p>
+
+    <p class="footer">רפואה אינטגרטיבית מאחדת · על פי השיטה של ד"ר נאדר בוטו</p>
+  </div>
+</body>
+</html>`;
 }
