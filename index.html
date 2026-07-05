@@ -80,6 +80,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center 30%;
       display: block;
     }
 
@@ -462,6 +463,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
+      object-position: center 30%;
       display: block;
     }
 
@@ -947,7 +949,19 @@
       starts.push(Date.now());
       try { localStorage.setItem('shani_chat_starts', JSON.stringify(starts)); } catch {}
     }
+    // Dev bypass: Shani can test without limits.
+    // Works via secret URL (?test=shani) or a saved flag on her browser.
+    (function() {
+      try {
+        const p = new URLSearchParams(location.search);
+        if (p.get('test') === 'shani') localStorage.setItem('shani_dev', '1');
+      } catch {}
+    })();
+    function devBypass() {
+      try { return localStorage.getItem('shani_dev') === '1'; } catch { return false; }
+    }
     function limitReached() {
+      if (devBypass()) return false;
       return getStarts().length >= WEEKLY_LIMIT;
     }
 
