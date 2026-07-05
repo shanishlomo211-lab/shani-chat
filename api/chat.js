@@ -14,11 +14,16 @@ const SYSTEM_PROMPT = `את שני, מטפלת ברפואה אינטגרטיבי
 
 המטרה: האדם מתאר את הכאב, ואת מראה לו מה זה אומר לפי השיטה. את לא חוקרת את הרגשות שלו ולא מבקשת ממנו לזהות משבר בעצמו. את זו שמניחה בעדינות מה המיקום מראה.
 
-## שלב 1 - הבנת הכאב (מההודעה הראשונה):
-הוא מתאר איפה כואב, איזה סוג כאב, ואם יש אבחנה רפואית.
-- אם חסר לך פרט **גופני** קריטי למיפוי (בעיקר: באיזה צד, ימין או שמאל) - שאלי שאלה קצרה אחת על הגוף בלבד. לדוגמה: "באיזה צד זה יותר - ימין או שמאל?"
-- אסור לשאול על רגשות, על העבר, על "מה עבר עליך", על פרידות או משברים. לא לחקור.
-- אם יש לך מספיק מידע כדי למפות - עברי ישר לשלב 2.
+## שלב 1 - בירור הכאב (עד 3 שאלות עוקבות קצרות):
+המטרה: לאסוף את פרטי הכאב הגופניים לפני שאת נותנת מיפוי. שאלה אחת בכל תגובה, קצרה, על הגוף בלבד:
+- איפה בדיוק כואב, ובאיזה צד (ימין / שמאל / מרכז)?
+- איזה סוג כאב (חד, עמום, לוחץ, שורף...)?
+- יש אבחנה רפואית או שם למחלה?
+כללים לשלב הזה:
+- שאלה אחת בכל פעם, לא כמה ביחד. סה"כ עד 3 שאלות.
+- אם האדם כבר נתן חלק מהמידע בהודעה הראשונה - אל תחזרי על השאלה, שאלי רק על מה שחסר.
+- **רק שאלות על הגוף והכאב.** אסור לשאול על רגשות, על העבר, על "מה עבר עליך", על פרידות או משברים.
+- אחרי שיש לך מיקום + צד (ואם אפשר גם סוג/אבחנה) - עברי לשלב 2.
 
 ## שלב 2 - המיפוי (הלב של השיחה):
 אמרי בעדינות ובחום מה המיקום הזה מראה לפי השיטה. זה משפט או שניים, לא הרצאה:
@@ -113,3 +118,90 @@ const SYSTEM_PROMPT = `את שני, מטפלת ברפואה אינטגרטיבי
 את: "מבינה. רק כדי לדייק - זה יותר בצד ימין, שמאל, או במרכז?"
 הוא: "יותר במרכז ולמטה"
 את: "תראה, לפי השיטה שלנו הגב התחתון קשור לתחום החומרי - כסף, ביטחון קיומי, יציבות - וגם למיניות. יכול להיות שיש שם משהו שמעיק עליך. אם זה מתחבר לך ובא לך להעמיק, אני אשמח לשלוח סיכום לוואטסאפ שלי ולהמשיך משם. רוצה?"`;
+
+function genderInstruction(gender) {
+  if (gender === 'male') {
+    return 'הפונה הוא גבר. פני אליו בלשון זכר לאורך כל השיחה.';
+  }
+  return 'הפונה היא אישה. פני אליה בלשון נקבה לאורך כל השיחה.';
+}
+
+export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
+
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    return res.status(500).json({ error: 'שגיאת הגדרה. פני אליי בוואטסאפ.' });
+  }
+
+  try {
+    const { history, gender } = req.body || {};
+    if (!Array.isArray(history) || history.length === 0) {
+      return res.status(400).json({ error: 'לא התקבלה הודעה' });
+    }
+
+    // Build the system prompt with the correct gender language
+    const systemPrompt = SYSTEM_PROMPT.replace('{{GENDER_INSTRUCTION}}', genderInstruction(gender));
+
+    // Convert to Gemini roles
+    let contents = history.map(m => ({
+      role: m.role === 'assistant' ? 'model' : 'user',
+      parts: [{ text: m.content }]
+    }));
+
+    // Gemini requires the conversation to start with a 'user' turn.
+    // Strip the client-side opening message(s).
+    while (contents.length > 0 && contents[0].role !== 'user') {
+      contents.shift();
+    }
+    if (contents.length === 0) {
+      return res.status(400).json({ error: 'לא התקבלה הודעה' });
+    }
+
+    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`;
+
+    const geminiRes = await fetch(geminiUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: systemPrompt }] },
+        contents,
+        generationConfig: {
+          temperature: 0.6,
+          topP: 0.9,
+          maxOutputTokens: 1024,
+          thinkingConfig: { thinkingBudget: 0 }
+        }
+      })
+    });
+
+    if (!geminiRes.ok) {
+      const errText = await geminiRes.text();
+      console.error('Gemini error status:', geminiRes.status);
+      console.error('Gemini error body:', errText);
+      if (geminiRes.status === 429) {
+        return res.status(200).json({
+          reply: 'רגע קטן, יש עומס על השירות 🙏 נסי שוב בעוד דקה, או פני אליי ישירות בוואטסאפ: [לחצי כאן](https://wa.me/972526917789)'
+        });
+      }
+      return res.status(500).json({ error: `שגיאה (${geminiRes.status}). נסי שוב עוד רגע.` });
+    }
+
+    const data = await geminiRes.json();
+    const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!reply) {
+      console.error('Empty reply:', JSON.stringify(data).substring(0, 500));
+      return res.status(500).json({ error: 'לא התקבלה תשובה. נסי שוב.' });
+    }
+
+    return res.status(200).json({ reply: reply.trim() });
+  } catch (err) {
+    console.error('Chat handler error:', err);
+    return res.status(500).json({ error: 'משהו השתבש. נסי שוב או פני אליי בוואטסאפ.' });
+  }
+}
