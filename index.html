@@ -572,6 +572,202 @@
     }
 
     .hidden { display: none !important; }
+
+    /* Gender question */
+    .gender-question {
+      background: var(--warm-cream);
+      border-radius: 14px;
+      border: 1.5px dashed var(--dusty-rose);
+      padding: 16px 18px;
+      max-width: 380px;
+      margin-bottom: 18px;
+      text-align: center;
+      font-size: 14px;
+      color: var(--deep-earth);
+      line-height: 1.5;
+    }
+
+    .gender-question strong {
+      font-family: 'Suez One', serif;
+      font-weight: 400;
+      color: var(--deep-earth);
+      display: block;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .gender-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .gender-btn {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: white;
+      border: 1.5px solid var(--border);
+      font-family: 'Assistant', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--deep-earth);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .gender-btn:hover {
+      border-color: var(--terracotta);
+      background: var(--sand);
+    }
+
+    .gender-btn.selected {
+      background: var(--terracotta);
+      color: white;
+      border-color: var(--terracotta);
+    }
+
+    /* Symptom quick-buttons */
+    .symptom-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 8px 14px 12px;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .symptom-btn {
+      padding: 8px 14px;
+      border-radius: 20px;
+      background: white;
+      border: 1px solid var(--border);
+      font-family: 'Assistant', sans-serif;
+      font-size: 13px;
+      color: var(--deep-earth);
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .symptom-btn:hover {
+      background: var(--terracotta);
+      color: white;
+      border-color: var(--terracotta);
+      transform: translateY(-1px);
+    }
+
+    /* Daily limit modal */
+    .limit-screen {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      text-align: center;
+      background: var(--bg);
+    }
+
+    .limit-screen .limit-emoji {
+      font-size: 56px;
+      margin-bottom: 12px;
+    }
+
+    .limit-screen h2 {
+      font-family: 'Suez One', serif;
+      font-weight: 400;
+      font-size: 24px;
+      color: var(--deep-earth);
+      margin-bottom: 10px;
+    }
+
+    .limit-screen p {
+      font-size: 15px;
+      color: var(--deep-earth);
+      line-height: 1.7;
+      max-width: 340px;
+      margin-bottom: 22px;
+    }
+
+    .limit-screen p strong {
+      font-family: 'Suez One', serif;
+      font-weight: 400;
+      color: var(--terracotta);
+    }
+
+    /* Step navigation dots */
+    .step-dots {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .step-dots .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--dusty-rose);
+      opacity: 0.4;
+      transition: all 0.3s;
+    }
+
+    .step-dots .dot.active {
+      background: var(--terracotta);
+      opacity: 1;
+      width: 24px;
+      border-radius: 4px;
+    }
+
+    .step-dots .dot.done {
+      background: var(--terracotta);
+      opacity: 0.7;
+    }
+
+    .step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      max-width: 420px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Details form (step 2) */
+    .details-form {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .details-form input {
+      padding: 13px 16px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: 'Assistant', sans-serif;
+      font-size: 15px;
+      color: var(--deep-earth);
+      background: var(--warm-cream);
+      transition: border 0.2s;
+      direction: rtl;
+    }
+
+    .details-form input:focus {
+      outline: none;
+      border-color: var(--terracotta);
+      background: white;
+    }
+
+    .details-form .intro-btn {
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
@@ -605,25 +801,87 @@
       <h1>שני שלמה</h1>
       <p class="subtitle">רפואה אינטגרטיבית מאחדת</p>
 
-      <div class="intro-body">
-        <p>היי, אני שני. מטפלת ברפואה אינטגרטיבית מאחדת ושטיפות אנרגטיות על פי השיטה של ד"ר נאדר בוטו.</p>
-        <p>השיחה הזאת היא <strong>טעימה בלבד</strong>. אני שואלת אותך 3-5 שאלות קצרות כדי לעזור לך לגלות איזה משבר רגשי עומד מאחורי מה שהגוף שלך מספר לך.</p>
-        <p>לפני שנתחיל, מוזמנת לעקוב אחריי באינסטגרם, שם אני משתפת את השיטה לעומק.</p>
+      <div class="step-dots">
+        <span class="dot active" data-step="1"></span>
+        <span class="dot" data-step="2"></span>
+        <span class="dot" data-step="3"></span>
       </div>
 
-      <div class="intro-buttons">
-        <a href="https://www.instagram.com/shani_integrativemed" target="_blank" class="intro-btn primary" id="follow-btn">
-          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-          לעקוב אחריי באינסטגרם
-        </a>
-        <button class="intro-btn secondary" id="start-btn">
-          אני מוכנה, בואי נתחיל
+      <div class="step" id="step-1">
+        <div class="intro-body">
+          <p>היי, אני שני. מטפלת ברפואה אינטגרטיבית מאחדת ושטיפות אנרגטיות על פי השיטה של ד"ר נאדר בוטו.</p>
+          <p>השיחה הזאת היא <strong>טעימה בלבד</strong>. אני שואלת אותך 3-5 שאלות קצרות כדי לגלות איזה משבר רגשי עומד מאחורי מה שהגוף שלך מספר לך.</p>
+          <p>לפני שנתחיל, בואי נעקוב אחריי באינסטגרם - שם אני משתפת את השיטה לעומק.</p>
+        </div>
+
+        <div class="intro-buttons">
+          <a href="https://www.instagram.com/shani_integrativemed" target="_blank" class="intro-btn primary" id="follow-btn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            לעקוב אחריי באינסטגרם
+          </a>
+          <button class="intro-btn secondary" id="next-1" disabled style="opacity:0.5;cursor:not-allowed">
+            עקבתי, המשך ←
+          </button>
+        </div>
+      </div>
+
+      <div class="step hidden" id="step-2">
+        <div class="intro-body">
+          <p><strong>נעים מאוד</strong> 🤍</p>
+          <p>לפני שנצלול פנימה, אשמח להכיר אותך. אני משתמשת בזה כדי לחזור אלייך בוואטסאפ אם תרצי להעמיק, ולוודא שהמרחב הזה נשמר בטוח.</p>
+        </div>
+
+        <div class="details-form">
+          <input type="text" id="detail-name" placeholder="שם מלא" autocomplete="name" />
+          <input type="tel" id="detail-phone" placeholder="טלפון (05...)" autocomplete="tel" inputmode="tel" />
+          <button class="intro-btn secondary" id="next-2" disabled style="opacity:0.5;cursor:not-allowed">
+            המשך ←
+          </button>
+        </div>
+      </div>
+
+      <div class="step hidden" id="step-3">
+        <div class="intro-body">
+          <p><strong>שאלה אחת אחרונה</strong></p>
+          <p>איך אני אפנה אלייך בשיחה שלנו?</p>
+        </div>
+
+        <div class="gender-btns" style="max-width:380px;width:100%">
+          <button class="gender-btn" data-gender="female">בלשון נקבה 👩</button>
+          <button class="gender-btn" data-gender="male">בלשון זכר 👨</button>
+        </div>
+
+        <button class="intro-btn secondary" id="start-btn" disabled style="opacity:0.5;cursor:not-allowed;max-width:380px;width:100%;margin-top:16px">
+          בחרי לשון קודם ↑
         </button>
+      </div>
+    </div>
+
+    <div class="limit-screen hidden" id="limit-screen">
+      <div class="limit-emoji">🤍</div>
+      <h2>וואו, נראה שהשיטה מדברת אלייך</h2>
+      <p>כבר עשית <strong>2 שיחות השבוע</strong>, וזה מה שמותר בבוט הזה בשבוע.<br>אם ממש בא לך להעמיק - זה הזמן לדבר איתי ישירות. בואי נמשיך משם 🤍</p>
+      <div class="intro-buttons" style="max-width:340px;width:100%">
+        <a href="https://wa.me/972526917789?text=%D7%94%D7%99%D7%99%20%D7%A9%D7%A0%D7%99%2C%20%D7%94%D7%99%D7%99%D7%AA%D7%99%20%D7%91%D7%A6%27%D7%90%D7%98%20%D7%95%D7%A8%D7%95%D7%A6%D7%94%20%D7%9C%D7%94%D7%A2%D7%9E%D7%99%D7%A7" target="_blank" class="intro-btn secondary" style="border-color:#25D366;color:#25D366">
+          לפתוח וואטסאפ עם שני
+        </a>
+        <a href="https://www.instagram.com/shani_integrativemed" target="_blank" class="intro-btn primary">
+          לעקוב באינסטגרם
+        </a>
       </div>
     </div>
 
     <div class="chat-container hidden" id="chat-container" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
       <div class="chat" id="chat"></div>
+
+      <div class="symptom-buttons hidden" id="symptom-buttons">
+        <button class="symptom-btn" data-symptom="יש לי כאבי ראש">כאבי ראש</button>
+        <button class="symptom-btn" data-symptom="יש לי כאבי גב">כאבי גב</button>
+        <button class="symptom-btn" data-symptom="יש לי בעיות עיכול">בעיות עיכול</button>
+        <button class="symptom-btn" data-symptom="אני מרגיש עייפות כרונית">עייפות</button>
+        <button class="symptom-btn" data-symptom="יש לי חרדה">חרדה</button>
+        <button class="symptom-btn" data-symptom="">אחר...</button>
+      </div>
 
       <div class="input-area">
         <div class="input-wrap">
@@ -645,13 +903,53 @@
     let history = [];
     let isThinking = false;
     let leadShown = false;
+    let gender = 'female'; // default; set by gender buttons
+    let userName = '';
+    let userPhone = '';
+    let sessionId = '';
 
-    const OPENING = `יופי, את כאן.
+    function openingText(g) {
+      if (g === 'male') {
+        return `יופי, אתה כאן.
 
-עכשיו ספרי לי - איזה כאב, מחלה או תסמין גופני מלווה אותך? נסי לכלול:
+עכשיו ספר לי, איזה כאב, מחלה או תסמין גופני מלווה אותך? נסה לכלול:
 • איפה בגוף (ובאיזה צד)
 • כמה זמן זה נמשך
-• מה הרופאים אמרו, אם ראית מישהו`;
+• מה הרופאים אמרו, אם ראית מישהו
+
+או פשוט לחץ על אחד הכפתורים למטה 👇`;
+      }
+      return `יופי, את כאן.
+
+עכשיו ספרי לי, איזה כאב, מחלה או תסמין גופני מלווה אותך? נסי לכלול:
+• איפה בגוף (ובאיזה צד)
+• כמה זמן זה נמשך
+• מה הרופאים אמרו, אם ראית מישהו
+
+או פשוט לחצי על אחד הכפתורים למטה 👇`;
+    }
+
+    // --- Usage limit (2 conversations per week per browser, rolling 7 days) ---
+    const WEEKLY_LIMIT = 2;
+    const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+    function getStarts() {
+      try {
+        const raw = localStorage.getItem('shani_chat_starts');
+        if (!raw) return [];
+        const arr = JSON.parse(raw);
+        if (!Array.isArray(arr)) return [];
+        const cutoff = Date.now() - WEEK_MS;
+        return arr.filter(t => typeof t === 'number' && t > cutoff);
+      } catch { return []; }
+    }
+    function bumpUsage() {
+      const starts = getStarts();
+      starts.push(Date.now());
+      try { localStorage.setItem('shani_chat_starts', JSON.stringify(starts)); } catch {}
+    }
+    function limitReached() {
+      return getStarts().length >= WEEKLY_LIMIT;
+    }
 
     function md(text) {
       let html = text
@@ -705,59 +1003,66 @@
       if (leadShown) return;
       leadShown = true;
 
+      const isMale = gender === 'male';
+      const heading = `מעולה, ${userName.split(' ')[0]} 🤍`;
+      const desc = isMale
+        ? `סימנתי לי, ואני אצור איתך קשר בוואטסאפ בקרוב עם הסיכום המלא. אם תרצה לקבל את הסיכום גם למייל שלך, השאר אותו כאן:`
+        : `סימנתי לי, ואני אצור איתך קשר בוואטסאפ בקרוב עם הסיכום המלא. אם תרצי לקבל את הסיכום גם למייל שלך, השאירי אותו כאן:`;
+      const btnLabel = isMale ? 'שלח לי גם במייל' : 'שלחי לי גם במייל';
+      const skipLabel = isMale ? 'לא צריך, סיימנו' : 'לא צריך, סיימנו';
+
       const form = document.createElement('div');
       form.className = 'lead-form';
       form.innerHTML = `
-        <h3>שלחי לי סיכום לוואטסאפ</h3>
-        <p>אכתוב לי שם וטלפון ואצור איתך קשר עם הסיכום המלא של השיחה ותובנות נוספות.</p>
-        <input type="text" id="lead-name" placeholder="שם מלא" />
-        <input type="tel" id="lead-phone" placeholder="טלפון (05...)" />
-        <button id="lead-submit">שלחי לי סיכום</button>
+        <h3>${heading}</h3>
+        <p>${desc}</p>
+        <input type="email" id="lead-email" placeholder="מייל (אופציונלי)" inputmode="email" />
+        <button id="lead-submit">${btnLabel}</button>
+        <button id="lead-skip" style="background:transparent;color:var(--muted-purple);border:none;padding:8px;margin-top:4px;font-family:inherit;font-size:13px;cursor:pointer;text-decoration:underline">${skipLabel}</button>
       `;
       chat.appendChild(form);
       chat.scrollTop = chat.scrollHeight;
 
-      document.getElementById('lead-submit').addEventListener('click', async () => {
-        const name = document.getElementById('lead-name').value.trim();
-        const phone = document.getElementById('lead-phone').value.trim();
-        const btn = document.getElementById('lead-submit');
-
-        if (!name || !phone) {
-          btn.style.background = '#a94438';
-          btn.textContent = 'חסר שם או טלפון';
-          setTimeout(() => {
-            btn.style.background = '';
-            btn.textContent = 'שלחי לי סיכום';
-          }, 1800);
-          return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = 'שולחת...';
-
+      async function finalize(email) {
         try {
-          const res = await fetch('/api/lead', {
+          await fetch('/api/lead', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, phone, history })
+            body: JSON.stringify({
+              name: userName, phone: userPhone, email, history, gender, sessionId
+            })
           });
-
-          if (res.ok) {
-            form.innerHTML = `
-              <h3>קיבלתי, ${name.split(' ')[0]} 🤍</h3>
-              <p class="success">שני תיצור איתך קשר בוואטסאפ עם הסיכום המלא בקרוב.</p>
-              <a href="https://wa.me/972526917789?text=${encodeURIComponent('היי שני, סיימתי שיחה עם הצ׳אט (' + name + '). אני מחכה לסיכום')}" target="_blank" class="cta-btn cta-whatsapp" style="text-decoration: none; justify-content: center; margin-top: 10px;">
-                פתחי וואטסאפ עם שני
-              </a>
-            `;
-          } else {
-            btn.disabled = false;
-            btn.textContent = 'נסי שוב';
-          }
         } catch (e) {
-          btn.disabled = false;
-          btn.textContent = 'נסי שוב';
+          console.warn('Lead send failed:', e);
         }
+        const doneMsg = email
+          ? (isMale ? 'שלחתי לך עותק למייל, ואצור איתך קשר בוואטסאפ בקרוב 🤍' : 'שלחתי לך עותק למייל, ואצור איתך קשר בוואטסאפ בקרוב 🤍')
+          : (isMale ? 'מעולה, אמשיך איתך בוואטסאפ בקרוב 🤍' : 'מעולה, אמשיך איתך בוואטסאפ בקרוב 🤍');
+        form.innerHTML = `
+          <h3>תודה 🤍</h3>
+          <p class="success">${doneMsg}</p>
+          <a href="https://wa.me/972526917789?text=${encodeURIComponent('היי שני, סיימתי שיחה עם הצ׳אט (' + userName + '). אני מחכה לסיכום')}" target="_blank" class="cta-btn cta-whatsapp" style="text-decoration: none; justify-content: center; margin-top: 10px;">
+            פתחי וואטסאפ עם שני
+          </a>
+        `;
+      }
+
+      document.getElementById('lead-submit').addEventListener('click', async () => {
+        const email = document.getElementById('lead-email').value.trim();
+        const btn = document.getElementById('lead-submit');
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+          btn.style.background = '#a94438';
+          btn.textContent = 'מייל לא תקין';
+          setTimeout(() => { btn.style.background = ''; btn.textContent = btnLabel; }, 1500);
+          return;
+        }
+        btn.disabled = true;
+        btn.textContent = 'שולחת...';
+        await finalize(email || null);
+      });
+
+      document.getElementById('lead-skip').addEventListener('click', async () => {
+        await finalize(null);
       });
     }
 
@@ -779,7 +1084,7 @@
         const res = await fetch('/api/chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ history })
+          body: JSON.stringify({ history, gender })
         });
 
         removeTyping();
@@ -827,29 +1132,139 @@
 
     sendBtn.addEventListener('click', sendMessage);
 
-    // Splash → chat transition
+    // Multi-step intro flow
     const introEl = document.getElementById('intro');
+    const limitEl = document.getElementById('limit-screen');
     const chatContainer = document.getElementById('chat-container');
     const startBtn = document.getElementById('start-btn');
     const followBtn = document.getElementById('follow-btn');
-    let followClicked = false;
+    const next1Btn = document.getElementById('next-1');
+    const next2Btn = document.getElementById('next-2');
+    const symptomButtonsEl = document.getElementById('symptom-buttons');
+    const detailNameInput = document.getElementById('detail-name');
+    const detailPhoneInput = document.getElementById('detail-phone');
+    const stepDots = document.querySelectorAll('.step-dots .dot');
+    let genderChosen = false;
 
+    // If daily limit is already reached, show the limit screen instead of intro
+    if (limitReached()) {
+      introEl.classList.add('hidden');
+      limitEl.classList.remove('hidden');
+    }
+
+    function showStep(n) {
+      document.querySelectorAll('.step').forEach(s => s.classList.add('hidden'));
+      const stepEl = document.getElementById('step-' + n);
+      if (stepEl) stepEl.classList.remove('hidden');
+      stepDots.forEach((dot, i) => {
+        dot.classList.remove('active', 'done');
+        if (i + 1 < n) dot.classList.add('done');
+        if (i + 1 === n) dot.classList.add('active');
+      });
+    }
+
+    // Step 1: Instagram follow
     followBtn.addEventListener('click', () => {
-      followClicked = true;
-      startBtn.textContent = 'תודה! בואי נתחיל ←';
-      startBtn.style.background = 'var(--terracotta)';
-      startBtn.style.color = 'white';
+      next1Btn.disabled = false;
+      next1Btn.style.opacity = '1';
+      next1Btn.style.cursor = 'pointer';
+      next1Btn.style.background = 'var(--terracotta)';
+      next1Btn.style.color = 'white';
+    });
+
+    next1Btn.addEventListener('click', () => {
+      showStep(2);
+      setTimeout(() => detailNameInput.focus(), 100);
+    });
+
+    // Step 2: Details form
+    function validateDetails() {
+      const name = detailNameInput.value.trim();
+      const phone = detailPhoneInput.value.trim().replace(/[^\d]/g, '');
+      const ok = name.length >= 2 && phone.length >= 9 && phone.length <= 11;
+      next2Btn.disabled = !ok;
+      next2Btn.style.opacity = ok ? '1' : '0.5';
+      next2Btn.style.cursor = ok ? 'pointer' : 'not-allowed';
+      if (ok) {
+        next2Btn.style.background = 'var(--terracotta)';
+        next2Btn.style.color = 'white';
+      }
+    }
+    detailNameInput.addEventListener('input', validateDetails);
+    detailPhoneInput.addEventListener('input', validateDetails);
+
+    next2Btn.addEventListener('click', async () => {
+      userName = detailNameInput.value.trim();
+      userPhone = detailPhoneInput.value.trim();
+      next2Btn.disabled = true;
+      next2Btn.textContent = 'רגע...';
+
+      // Register user in Google Sheets (fire-and-forget style, don't block on failure)
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: userName, phone: userPhone })
+        });
+        if (res.ok) {
+          const data = await res.json().catch(() => ({}));
+          if (data.sessionId) sessionId = data.sessionId;
+        }
+      } catch (e) {
+        console.warn('Register failed (non-fatal):', e);
+      }
+
+      // Regardless of register status, continue to step 3
+      showStep(3);
+    });
+
+    // Step 3: Gender
+    document.querySelectorAll('.gender-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        gender = btn.dataset.gender;
+        genderChosen = true;
+        document.querySelectorAll('.gender-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        startBtn.disabled = false;
+        startBtn.style.opacity = '1';
+        startBtn.style.cursor = 'pointer';
+        startBtn.style.background = 'var(--terracotta)';
+        startBtn.style.color = 'white';
+        startBtn.textContent = gender === 'male' ? 'אני מוכן, בוא נתחיל ←' : 'אני מוכנה, בואי נתחיל ←';
+      });
     });
 
     function startChat() {
+      if (!genderChosen) return;
       introEl.classList.add('hidden');
       chatContainer.classList.remove('hidden');
-      addMessage('bot', OPENING);
-      history.push({ role: 'assistant', content: OPENING });
+      const openText = openingText(gender);
+      addMessage('bot', openText);
+      history.push({ role: 'assistant', content: openText });
+      symptomButtonsEl.classList.remove('hidden');
+      // Count this as one conversation for daily limit
+      bumpUsage();
+      // Update placeholder based on gender
+      input.placeholder = gender === 'male' ? 'ספר לי מה מלווה אותך...' : 'ספרי לי מה מלווה אותך...';
       setTimeout(() => input.focus(), 100);
     }
 
     startBtn.addEventListener('click', startChat);
+
+    // Symptom quick-button clicks
+    document.querySelectorAll('.symptom-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const s = btn.dataset.symptom;
+        symptomButtonsEl.classList.add('hidden');
+        if (s) {
+          input.value = s;
+          updateSendBtn();
+          sendMessage();
+        } else {
+          input.focus();
+        }
+      });
+    });
   </script>
 </body>
 </html>
