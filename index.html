@@ -1118,7 +1118,9 @@
       clearQuickReplies();
       const wrap = document.createElement('div');
       wrap.className = 'quick-replies';
-      options.concat(['אחר...']).forEach(opt => {
+      // The model sometimes includes its own "אחר" option - drop it, we add one
+      const opts = options.filter(o => !/^אחר/.test(o));
+      opts.concat(['אחר...']).forEach(opt => {
         const btn = document.createElement('button');
         btn.className = 'symptom-btn';
         btn.textContent = opt;
