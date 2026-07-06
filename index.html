@@ -450,6 +450,7 @@
     .intro-avatar {
       width: 130px;
       height: 130px;
+      flex-shrink: 0;
       border-radius: 50%;
       overflow: hidden;
       background: var(--sand);
@@ -1172,10 +1173,17 @@
     }
 
     // Step 1: Name + phone (registration gates next-1)
+    function normalizePhone(raw) {
+      let d = raw.replace(/[^\d]/g, '');
+      if (d.startsWith('00972')) d = d.slice(5);
+      else if (d.startsWith('972')) d = d.slice(3);
+      if (d && !d.startsWith('0')) d = '0' + d;
+      return d;
+    }
     function validateDetails() {
       const name = detailNameInput.value.trim();
-      const phone = detailPhoneInput.value.trim().replace(/[^\d]/g, '');
-      const ok = name.length >= 2 && phone.length >= 9 && phone.length <= 11;
+      const phone = normalizePhone(detailPhoneInput.value);
+      const ok = name.length >= 2 && phone.length >= 9 && phone.length <= 10;
       next1Btn.disabled = !ok;
       next1Btn.style.opacity = ok ? '1' : '0.5';
       next1Btn.style.cursor = ok ? 'pointer' : 'not-allowed';
@@ -1189,7 +1197,7 @@
 
     next1Btn.addEventListener('click', async () => {
       userName = detailNameInput.value.trim();
-      userPhone = detailPhoneInput.value.trim();
+      userPhone = normalizePhone(detailPhoneInput.value);
       next1Btn.disabled = true;
       next1Btn.textContent = 'רגע...';
       try {
