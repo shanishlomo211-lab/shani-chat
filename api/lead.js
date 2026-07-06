@@ -146,7 +146,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { name, phone, email, history, gender, sessionId, status } = req.body || {};
+    const { name, phone, email, history, gender, sessionId, status, satisfaction, messageCount } = req.body || {};
     const abandoned = status === 'abandoned';
 
     if (!name || !phone || !Array.isArray(history)) {
@@ -184,6 +184,8 @@ export default async function handler(req, res) {
             email: cleanEmail || '',
             gender: gender || '',
             summary: summary || '',
+            satisfaction: satisfaction || '',
+            messageCount: (messageCount !== undefined && messageCount !== null) ? messageCount : '',
             timestamp: new Date().toISOString()
           }),
           signal: controller.signal
