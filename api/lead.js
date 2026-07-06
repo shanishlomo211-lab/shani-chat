@@ -40,7 +40,7 @@ ${conversationText}
   }
 }
 
-function buildEmailHtml({ name, phone, summary, history }) {
+function buildEmailHtml({ name, phone, summary, history, abandoned }) {
   const conversation = history.map(m => {
     const isBot = m.role === 'assistant';
     const label = isBot ? 'שני' : 'משתמשת';
@@ -75,8 +75,14 @@ function buildEmailHtml({ name, phone, summary, history }) {
 </head>
 <body>
   <div class="wrap">
-    <h1>ליד חדש מהצ׳אטבוט</h1>
+    <h1>${abandoned ? 'שיחה לא הושלמה בצ׳אטבוט ⚠️' : 'ליד חדש מהצ׳אטבוט'}</h1>
     <p class="meta">התקבל בתאריך ${new Date().toLocaleDateString('he-IL', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+
+    ${abandoned ? `
+    <div style="background: #FDECEA; border-right: 4px solid #a94438; border-radius: 12px; padding: 16px 20px; margin: 16px 0; color: #5C4033; font-size: 15px; line-height: 1.6;">
+      המשתמש/ת יצא/ה באמצע ולא סיים/ה את השיחה - שווה לחזור אליו/ה בטלפון או בוואטסאפ 🤍
+    </div>
+    ` : ''}
 
     <div class="card">
       <h2>שם</h2>
@@ -140,7 +146,8 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { name, phone, email, history, gender, sessionId } = req.body || {};
+    const { name, phone, email, history, gender, sessionId, status } = req.body || {};
+    const abandoned = status === 'abandoned';
 
     if (!name || !phone || !Array.isArray(history)) {
       return res.status(400).json({ error: 'חסרים פרטים' });
@@ -155,8 +162,9 @@ export default async function handler(req, res) {
     // Validate optional email
     const cleanEmail = email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ? email.trim() : null;
 
-    // Generate summary using Gemini (if key available)
-    const summary = geminiKey ? await summarize(history, geminiKey) : null;
+    // Generate summary using Gemini (only if the user actually said something)
+    const hasUserMessages = history.some(m => m.role === 'user');
+    const summary = geminiKey && hasUserMessages ? await summarize(history, geminiKey) : null;
 
     // Update Google Sheets with completion status + summary + email
     const sheetsUrl = process.env.SHEETS_WEBHOOK_URL;
@@ -169,6 +177,7 @@ export default async function handler(req, res) {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             action: 'complete',
+            status: abandoned ? 'abandoned' : 'completed',
             sessionId: sessionId || '',
             name,
             phone: cleanPhone,
@@ -186,7 +195,7 @@ export default async function handler(req, res) {
     }
 
     // Build email HTML for Shani (internal, full lead)
-    const htmlForShani = buildEmailHtml({ name, phone: cleanPhone, summary, history });
+    const htmlForShani = buildEmailHtml({ name, phone: cleanPhone, summary, history, abandoned });
 
     // Send email to Shani
     const shaniEmailRes = await fetch('https://api.resend.com/emails', {
@@ -198,7 +207,9 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         from: 'Shani Chat <onboarding@resend.dev>',
         to: [SHANI_EMAIL],
-        subject: `ליד חדש מהצ׳אטבוט: ${name}`,
+        subject: abandoned
+          ? `⚠️ שיחה לא הושלמה: ${name} - כדאי לחזור אליו/ה`
+          : `ליד חדש מהצ׳אטבוט: ${name}`,
         html: htmlForShani,
         reply_to: SHANI_EMAIL
       })
