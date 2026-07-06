@@ -916,6 +916,8 @@
     let history = [];
     let isThinking = false;
     let leadShown = false;
+    let userMessageCount = 0;
+    let satisfaction = '';
     let gender = 'female'; // default; set by gender buttons
     let userName = '';
     let userPhone = '';
@@ -1032,7 +1034,8 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            name: userName, phone: userPhone, history, gender, sessionId, status
+            name: userName, phone: userPhone, history, gender, sessionId, status,
+            satisfaction, messageCount: userMessageCount
           })
         });
       } catch (e) {
@@ -1044,7 +1047,8 @@
       if (!userName || leadFinalized || abandonNotified) return;
       abandonNotified = true;
       const payload = JSON.stringify({
-        name: userName, phone: userPhone, history, gender, sessionId, status: 'abandoned'
+        name: userName, phone: userPhone, history, gender, sessionId, status: 'abandoned',
+        satisfaction, messageCount: userMessageCount
       });
       try {
         navigator.sendBeacon('/api/lead', new Blob([payload], { type: 'application/json' }));
@@ -1054,6 +1058,36 @@
       if (document.visibilityState === 'hidden') notifyAbandon();
     });
     window.addEventListener('pagehide', notifyAbandon);
+
+    // Quick feedback check shown once, right before the WhatsApp invite -
+    // a rough satisfaction signal for the dashboard, not shown to the model.
+    let satisfactionAsked = false;
+    function addSatisfactionCheck() {
+      if (satisfactionAsked || leadShown) return;
+      satisfactionAsked = true;
+
+      const question = document.createElement('div');
+      question.className = 'message bot';
+      question.textContent = 'רגע לפני שממשיכים - עד כמה מה שעלה כאן מרגיש לך מתחבר לחיים שלך?';
+      chat.appendChild(question);
+      chat.scrollTop = chat.scrollHeight;
+
+      const wrap = document.createElement('div');
+      wrap.className = 'quick-replies';
+      ['מאוד', 'חלקית', 'לא כל כך'].forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'symptom-btn';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => {
+          satisfaction = opt;
+          wrap.remove();
+          addLeadForm();
+        });
+        wrap.appendChild(btn);
+      });
+      chat.appendChild(wrap);
+      chat.scrollTop = chat.scrollHeight;
+    }
 
     function addLeadForm() {
       if (leadShown) return;
@@ -1151,6 +1185,7 @@
 
       addMessage('user', text);
       history.push({ role: 'user', content: text });
+      userMessageCount++;
 
       isThinking = true;
       addTyping();
@@ -1178,9 +1213,9 @@
         history.push({ role: 'assistant', content: replyText });
         if (options) addQuickReplies(options);
 
-        // Show lead form after bot suggests summary
+        // Show the satisfaction check (then the lead form) after bot suggests summary
         if (/וואטסאפ|סיכום|האמיתית|רוצה שאשלח/i.test(replyText)) {
-          setTimeout(addLeadForm, 400);
+          setTimeout(addSatisfactionCheck, 400);
         }
       } catch (e) {
         removeTyping();
