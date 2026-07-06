@@ -660,6 +660,16 @@
       transform: translateY(-1px);
     }
 
+    /* Quick-reply chips under a bot question */
+    .quick-replies {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-self: flex-start;
+      max-width: 86%;
+      animation: fadeIn 0.35s ease-out;
+    }
+
     /* Daily limit modal */
     .limit-screen {
       flex: 1;
@@ -956,6 +966,8 @@
       try { return localStorage.getItem('shani_dev') === '1'; } catch { return false; }
     }
     function limitReached() {
+      // TODO: ההגבלה מבוטלת זמנית לתקופת הבדיקות - למחוק את השורה הבאה לפני ההשקה
+      return false;
       if (devBypass()) return false;
       return getStarts().length >= WEEKLY_LIMIT;
     }
@@ -1008,6 +1020,41 @@
       if (t) t.remove();
     }
 
+    // --- Lead delivery to Shani ---
+    // A summary is ALWAYS emailed to Shani: on completion, on skip, and if the
+    // visitor leaves mid-conversation (status 'abandoned' so she can follow up).
+    let leadFinalized = false;
+    let abandonNotified = false;
+
+    async function sendLead(status) {
+      try {
+        await fetch('/api/lead', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: userName, phone: userPhone, history, gender, sessionId, status
+          })
+        });
+      } catch (e) {
+        console.warn('Lead send failed:', e);
+      }
+    }
+
+    function notifyAbandon() {
+      if (!userName || leadFinalized || abandonNotified) return;
+      abandonNotified = true;
+      const payload = JSON.stringify({
+        name: userName, phone: userPhone, history, gender, sessionId, status: 'abandoned'
+      });
+      try {
+        navigator.sendBeacon('/api/lead', new Blob([payload], { type: 'application/json' }));
+      } catch (e) {}
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') notifyAbandon();
+    });
+    window.addEventListener('pagehide', notifyAbandon);
+
     function addLeadForm() {
       if (leadShown) return;
       leadShown = true;
@@ -1015,64 +1062,77 @@
       const isMale = gender === 'male';
       const heading = `מעולה, ${userName.split(' ')[0]} 🤍`;
       const desc = isMale
-        ? `סימנתי לי, ואני אצור איתך קשר בוואטסאפ בקרוב עם הסיכום המלא. אם תרצה לקבל את הסיכום גם למייל שלך, השאר אותו כאן:`
-        : `סימנתי לי, ואני אצור איתך קשר בוואטסאפ בקרוב עם הסיכום המלא. אם תרצי לקבל את הסיכום גם למייל שלך, השאירי אותו כאן:`;
-      const btnLabel = isMale ? 'שלח לי גם במייל' : 'שלחי לי גם במייל';
-      const skipLabel = isMale ? 'לא צריך, סיימנו' : 'לא צריך, סיימנו';
+        ? 'לחץ על הכפתור וזה יפתח את הוואטסאפ שלי עם הודעה מוכנה - משם נמשיך יחד:'
+        : 'לחצי על הכפתור וזה יפתח את הוואטסאפ שלי עם הודעה מוכנה - משם נמשיך יחד:';
+      const skipLabel = 'לא עכשיו, תודה';
+
+      const waText = encodeURIComponent(`היי שני, זו ${userName} מהצ'אט 🤍 סיימתי שיחה ואשמח להמשיך איתך`);
+      const waHref = `https://wa.me/972526917789?text=${waText}`;
 
       const form = document.createElement('div');
       form.className = 'lead-form';
       form.innerHTML = `
         <h3>${heading}</h3>
         <p>${desc}</p>
-        <input type="email" id="lead-email" placeholder="מייל (אופציונלי)" inputmode="email" />
-        <button id="lead-submit">${btnLabel}</button>
-        <button id="lead-skip" style="background:transparent;color:var(--muted-purple);border:none;padding:8px;margin-top:4px;font-family:inherit;font-size:13px;cursor:pointer;text-decoration:underline">${skipLabel}</button>
+        <a href="${waHref}" target="_blank" rel="noopener" id="lead-wa" class="cta-btn cta-whatsapp" style="text-decoration: none; justify-content: center;">
+          לשלוח את הסיכום לוואטסאפ של שני
+        </a>
+        <button id="lead-skip" style="background:transparent;color:var(--muted-purple);border:none;padding:8px;margin-top:4px;font-family:inherit;font-size:13px;cursor:pointer;text-decoration:underline;width:100%">${skipLabel}</button>
       `;
       chat.appendChild(form);
       chat.scrollTop = chat.scrollHeight;
 
-      async function finalize(email) {
-        try {
-          await fetch('/api/lead', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: userName, phone: userPhone, email, history, gender, sessionId
-            })
-          });
-        } catch (e) {
-          console.warn('Lead send failed:', e);
-        }
-        const doneMsg = email
-          ? (isMale ? 'שלחתי לך עותק למייל, ואצור איתך קשר בוואטסאפ בקרוב 🤍' : 'שלחתי לך עותק למייל, ואצור איתך קשר בוואטסאפ בקרוב 🤍')
-          : (isMale ? 'מעולה, אמשיך איתך בוואטסאפ בקרוב 🤍' : 'מעולה, אמשיך איתך בוואטסאפ בקרוב 🤍');
+      function finalize(openedWhatsapp) {
+        leadFinalized = true;
+        sendLead('completed');
+        const doneMsg = openedWhatsapp
+          ? (isMale ? 'מחכה לך שם 🤍' : 'מחכה לך שם 🤍')
+          : 'בסדר גמור 🤍 הסיכום שמור אצלי, ואצור איתך קשר בקרוב';
         form.innerHTML = `
           <h3>תודה 🤍</h3>
           <p class="success">${doneMsg}</p>
-          <a href="https://wa.me/972526917789?text=${encodeURIComponent('היי שני, סיימתי שיחה עם הצ׳אט (' + userName + '). אני מחכה לסיכום')}" target="_blank" class="cta-btn cta-whatsapp" style="text-decoration: none; justify-content: center; margin-top: 10px;">
-            פתחי וואטסאפ עם שני
-          </a>
         `;
       }
 
-      document.getElementById('lead-submit').addEventListener('click', async () => {
-        const email = document.getElementById('lead-email').value.trim();
-        const btn = document.getElementById('lead-submit');
-        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-          btn.style.background = '#a94438';
-          btn.textContent = 'מייל לא תקין';
-          setTimeout(() => { btn.style.background = ''; btn.textContent = btnLabel; }, 1500);
-          return;
-        }
-        btn.disabled = true;
-        btn.textContent = 'שולחת...';
-        await finalize(email || null);
-      });
+      document.getElementById('lead-wa').addEventListener('click', () => finalize(true));
+      document.getElementById('lead-skip').addEventListener('click', () => finalize(false));
+    }
 
-      document.getElementById('lead-skip').addEventListener('click', async () => {
-        await finalize(null);
+    // The model ends closed questions with a hidden line: [אפשרויות: א | ב | ג]
+    // We strip it from the displayed text and turn it into quick-reply chips.
+    function extractOptions(text) {
+      const m = text.match(/\n?\s*\[אפשרויות:([^\]]+)\]\s*$/);
+      if (!m) return { text, options: null };
+      const options = m[1].split('|').map(s => s.trim()).filter(Boolean);
+      return {
+        text: text.replace(m[0], '').trim(),
+        options: options.length ? options : null
+      };
+    }
+
+    function clearQuickReplies() {
+      document.querySelectorAll('.quick-replies').forEach(el => el.remove());
+    }
+
+    function addQuickReplies(options) {
+      clearQuickReplies();
+      const wrap = document.createElement('div');
+      wrap.className = 'quick-replies';
+      options.concat(['אחר...']).forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'symptom-btn';
+        btn.textContent = opt;
+        btn.addEventListener('click', () => {
+          clearQuickReplies();
+          if (opt === 'אחר...') { input.focus(); return; }
+          input.value = opt;
+          updateSendBtn();
+          sendMessage();
+        });
+        wrap.appendChild(btn);
       });
+      chat.appendChild(wrap);
+      chat.scrollTop = chat.scrollHeight;
     }
 
     async function sendMessage() {
@@ -1082,6 +1142,10 @@
       input.value = '';
       input.style.height = 'auto';
       updateSendBtn();
+
+      // Once the user talks, the opening symptom bubbles and any quick replies go away
+      symptomButtonsEl.classList.add('hidden');
+      clearQuickReplies();
 
       addMessage('user', text);
       history.push({ role: 'user', content: text });
@@ -1106,12 +1170,14 @@
         }
 
         const data = await res.json();
-        const reply = data.reply || 'משהו השתבש. נסי שוב.';
-        addMessage('bot', reply);
-        history.push({ role: 'assistant', content: reply });
+        const rawReply = data.reply || 'משהו השתבש. נסי שוב.';
+        const { text: replyText, options } = extractOptions(rawReply);
+        addMessage('bot', replyText);
+        history.push({ role: 'assistant', content: replyText });
+        if (options) addQuickReplies(options);
 
         // Show lead form after bot suggests summary
-        if (/וואטסאפ|סיכום|האמיתית|רוצה שאשלח/i.test(reply)) {
+        if (/וואטסאפ|סיכום|האמיתית|רוצה שאשלח/i.test(replyText)) {
           setTimeout(addLeadForm, 400);
         }
       } catch (e) {
