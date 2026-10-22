@@ -119,6 +119,27 @@
       font-size: 13px;
     }
     .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .top-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .chat-link {
+      background: var(--terracotta);
+      color: white;
+      text-decoration: none;
+      border: none;
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    #copy-chat {
+      background: var(--warm-cream);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px 16px;
+      font-family: inherit;
+      cursor: pointer;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -133,7 +154,11 @@
   <div id="dash">
     <div class="top-row">
       <h1>דשבורד הבוט של שני</h1>
-      <button id="refresh">רענון</button>
+      <div class="top-actions">
+        <a class="chat-link" href="/" target="_blank" rel="noopener">פתיחת הצ'אט 💬</a>
+        <button id="copy-chat" type="button">העתקת קישור לצ'אט 🔗</button>
+        <button id="refresh">רענון</button>
+      </div>
     </div>
 
     <div class="kpis" id="kpis"></div>
@@ -299,6 +324,19 @@
 
     document.getElementById('pw-submit').addEventListener('click', () => tryEnter(pwInput.value));
     pwInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryEnter(pwInput.value); });
+
+    document.getElementById('copy-chat').addEventListener('click', async (e) => {
+      const btn = e.currentTarget;
+      const original = btn.textContent;
+      const url = location.origin + '/';
+      try {
+        await navigator.clipboard.writeText(url);
+        btn.textContent = 'הקישור הועתק ✅';
+      } catch (err) {
+        window.prompt('העתיקי את הקישור:', url);
+      }
+      setTimeout(() => { btn.textContent = original; }, 2000);
+    });
 
     document.getElementById('refresh').addEventListener('click', async () => {
       const pw = sessionStorage.getItem('dash_pw');
